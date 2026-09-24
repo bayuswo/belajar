@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulasi & Modul Belajar Saham Indonesia</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 2rem;
+      color: #38bdf8;
+    }
+    header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      color: #f1f5f9;
+    }
+    .highlight {
+      background: #0284c7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .stat-box {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .stat-label {
+      color: var(--text-muted);
+    }
+    .stat-val {
+      font-weight: 700;
+    }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--accent);
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.2s;
+    }
+    .btn:hover:not(:disabled) {
+      background-color: var(--accent-hover);
+    }
+    .btn:disabled {
+      background-color: #475569;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .btn-sell { background-color: var(--danger); }
+    .btn-sell:hover:not(:disabled) { background-color: #b91c1c; }
+    .btn-div { background-color: var(--warning); }
+    .btn-div:hover:not(:disabled) { background-color: #b45309; }
+    
+    canvas {
+      width: 100%;
+      height: 180px;
+      background-color: #020617;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+    .log-box {
+      background-color: #020617;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .log-entry {
+      margin-bottom: 0.4rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .text-green { color: #4ade80; }
+    .text-red { color: #f87171; }
+    .text-yellow { color: #facc15; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      background-color: #334155;
+    }
+    
+    /* Quiz styling */
+    .quiz-question {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #334155;
+    }
+    .quiz-question p {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .quiz-options label {
+      display: block;
+      margin-bottom: 0.4rem;
+      padding: 0.4rem 0.6rem;
+      background-color: #0f172a;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .quiz-options label:hover {
+      background-color: #1e293b;
+    }
+    .quiz-feedback {
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Simulasi Saham Indonesia (BEI)</h1>
+      <p>Modul interaktif pemahaman pasar modal, simulasi porto, dan evaluasi konsep mandiri.</p>
+    </header>
+
+    <div class="grid">
+      <!-- Edukasi Konsep -->
+      <div class="card">
+        <h2>1. Apa Itu Saham?</h2>
+        <p>Membeli saham berarti <strong>memiliki sebagian porsi kepemilikan bisnis</strong> tersebut.</p>
+        <br />
+        <p><strong>Studi Kasus:</strong></p>
+        <p>PT Kopi Nusantara Tbk (Kode: <span class="highlight">KOPI</span>).</p>
+        <p style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+          Untuk ekspansi cabang, perusahaan menjual lembar saham ke publik lewat Bursa Efek Indonesia (BEI).
+        </p>
+        <div style="margin-top: 1rem;">
+          <span class="badge">Aturan Bursa: 1 Lot = 100 Lembar Saham</span>
+        </div>
+      </div>
+
+      <!-- Akun Investor -->
+      <div class="card">
+        <h2>2. Rekening Dana Nasabah (RDN)</h2>
+        <div class="stat-box">
+          <span class="stat-label">Saldo Kas Siap Beli:</span>
+          <span class="stat-val" id="cashBalance">Rp 5.000.000</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Portofolio KOPI:</span>
+          <span class="stat-val" id="portfolioShares">0 Lot (0 Lembar)</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Rata-rata Harga Beli:</span>
+          <span class="stat-val" id="avgBuyPrice">Rp 0 / lembar</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Keuntungan Dividen:</span>
+          <span class="stat-val text-yellow" id="totalDividends">Rp 0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Status Unrealized P/L:</span>
+          <span class="stat-val" id="unrealizedPL">Rp 0 (0%)</span>
+        </div>
+      </div>
+
+      <!-- Pasar Saham & Grafik -->
+      <div class="card full-width">
+        <h2>3. Pasar Saham & Grafik Dinamis (PT KOPI Tbk)</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div>
+            <span style="font-size: 1.5rem; font-weight: bold; color: #38bdf8;">KOPI</span>
+            <span style="color: var(--text-muted); font-size: 0.9rem; margin-left: 0.5rem;">Harga Terkini:</span>
+          </div>
+          <div>
+            <span id="stockPriceDisplay" style="font-size: 1.5rem; font-weight: bold;">Rp 2.000</span>
+            <span id="priceChangeBadge" class="badge" style="background-color: var(--border);">Tetap</span>
+          </div>
+        </div>
+
+        <!-- Canvas Chart -->
+        <canvas id="priceChart" width="900" height="180"></canvas>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.75rem 0;">
+          Harga 1 Lot (100 lembar) saat ini = <strong id="lotPriceDisplay" style="color: var(--text);">Rp 200.000</strong> (belum termasuk estimasi fee transaksi).
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+          <button class="btn" id="btnBuy" onclick="buyStock()">Beli 1 Lot</button>
+          <button class="btn btn-sell" id="btnSell" onclick="sellStock()" disabled>Jual 1 Lot</button>
+          <button class="btn btn-div" id="btnDiv" onclick="distributeDividend()" disabled>Bagi Dividen (Rp 100/lbr)</button>
+          <button class="btn" style="background-color: #64748b;" onclick="simulateMarket()">Ubah Harga Acak</button>
+        </div>
+      </div>
+
+      <!-- Log Aktivitas -->
+      <div class="card full-width">
+        <h2>4. Catatan Transaksi Pasar</h2>
+        <div class="log-box" id="activityLog">
+          <div class="log-entry">[Sistem]: Akun siap dengan modal awal Rp 5.000.000. Coba lakukan transaksi beli pertama Anda.</div>
+        </div>
+      </div>
+
+      <!-- Modul Kuis Pemahaman -->
+      <div class="card full-width">
+        <h2>5. Uji Pemahaman Mandiri</h2>
+        
+        <div class="quiz-question" id="q1">
+          <p>1. Jika Anda membeli saham PT KOPI Tbk di Bursa Efek Indonesia sebanyak 2 Lot, berapa lembar saham yang Anda miliki?</p>
+          <div class="quiz-options">
+            <label><input type="radio" name="ans1" value="A"> A. 20 Lembar</label>
+            <label><input type="radio" name="ans1" value="B"> B. 200 Lembar</label>
+            <label><input type="radio" name="ans1" value="C"> C. 2.000 Lembar</label>
+          </div>
+          <div class="quiz-feedback" id="fb1"></div>
+        </div>
+
+        <div class="quiz-question" id="q2">
+          <p>2. Keuntungan berupa uang tunai yang dibagikan perusahaan dari perolehan laba bersih ke pemegang saham disebut?</p>
+          <div class="quiz-options">
+            <label><input type="radio" name="ans2" value="A"> A. Capital Gain</label>
+            <label><input type="radio" name="ans2" value="B"> B. Bunga Deposito</label>
+            <label><input type="radio" name="ans2" value="C"> C. Dividen</label>
+          </div>
+          <div class="quiz-feedback" id="fb2"></div>
+        </div>
+
+        <div class="quiz-question" id="q3">
+          <p>3. Jika Anda membeli saham di harga Rp 2.000 lalu menjualnya saat harga Rp 2.500, keuntungan dari selisih harga tersebut disebut?</p>
+          <div class="quiz-options">
+            <label><input type="radio" name="ans3" value="A"> A. Capital Gain</label>
+            <label><input type="radio" name="ans3" value="B"> B. Capital Loss</label>
+            <label><input type="radio" name="ans3" value="C"> C. Rights Issue</label>
+          </div>
+          <div class="quiz-feedback" id="fb3"></div>
+        </div>
+
+        <button class="btn" style="background-color: #059669;" onclick="gradeQuiz()">Periksa Hasil Jawaban</button>
+        <p id="quizScore" style="margin-top: 1rem; font-weight: bold;"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State App
+    let cash = 5000000;
+    let shares = 0; // satuan lembar
+    let avgPrice = 0;
+    let currentPrice = 2000;
+    let totalDividendEarned = 0;
+    let priceHistory = [2000, 2000, 2000, 2000, 2000];
+
+    const feeBuy = 0.0015; // 0.15% fee beli
+    const feeSell = 0.0025; // 0.25% fee jual (termasuk PPh final 0.1%)
+
+    function formatIDR(num) {
+      return "Rp " + Math.round(num).toLocaleString("id-ID");
+    }
+
+    function addLog(message, type = "") {
+      const logBox = document.getElementById("activityLog");
+      const entry = document.createElement("div");
+      entry.className = "log-entry " + type;
+      const time = new Date().toLocaleTimeString("id-ID");
+      entry.innerText = `[${time}] ${message}`;
+      logBox.prepend(entry);
+    }
+
+    function drawChart() {
+      const canvas = document.getElementById("priceChart");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Grid dasar
+      ctx.strokeStyle = "#1e293b";
+      ctx.lineWidth = 1;
+      for (let y = 30; y < h; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      const minP = Math.min(...priceHistory) * 0.95;
+      const maxP = Math.max(...priceHistory) * 1.05;
+      const range = maxP - minP || 1;
+
+      // Garis Tren
+      ctx.strokeStyle = currentPrice >= priceHistory[0] ? "#4ade80" : "#f87171";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+
+      const step = w / (priceHistory.length - 1);
+      priceHistory.forEach((p, idx) => {
+        const x = idx * step;
+        const y = h - ((p - minP) / range) * (h - 40) - 20;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Titik data
+      priceHistory.forEach((p, idx) => {
+        const x = idx * step;
+        const y = h - ((p - minP) / range) * (h - 40) - 20;
+        ctx.fillStyle = "#38bdf8";
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function updateUI() {
+      document.getElementById("cashBalance").innerText = formatIDR(cash);
+      document.getElementById("portfolioShares").innerText = `${shares / 100} Lot (${shares} Lembar)`;
+      document.getElementById("avgBuyPrice").innerText = shares > 0 ? `${formatIDR(avgPrice)} / lbr` : "Rp 0 / lbr";
+      document.getElementById("totalDividends").innerText = formatIDR(totalDividendEarned);
+
+      // Unrealized P/L
+      if (shares > 0) {
+        const modalBeli = shares * avgPrice;
+        const nilaiSekarang = shares * currentPrice;
+        const diff = nilaiSekarang - modalBeli;
+        const pct = ((diff / modalBeli) * 100).toFixed(2);
+        const el = document.getElementById("unrealizedPL");
+        if (diff > 0) {
+          el.innerText = `+${formatIDR(diff)} (+${pct}%)`;
+          el.className = "stat-val text-green";
+        } else if (diff < 0) {
+          el.innerText = `${formatIDR(diff)} (${pct}%)`;
+          el.className = "stat-val text-red";
+        } else {
+          el.innerText = `Rp 0 (0.00%)`;
+          el.className = "stat-val";
+        }
+      } else {
+        const el = document.getElementById("unrealizedPL");
+        el.innerText = "Rp 0 (0.00%)";
+        el.className = "stat-val";
+      }
+
+      // Buttons control
+      document.getElementById("btnSell").disabled = shares <= 0;
+      document.getElementById("btnDiv").disabled = shares <= 0;
+      const cost1Lot = (currentPrice * 100) * (1 + feeBuy);
+      document.getElementById("btnBuy").disabled = cash < cost1Lot;
+
+      // Harga
+      document.getElementById("stockPriceDisplay").innerText = formatIDR(currentPrice);
+      document.getElementById("lotPriceDisplay").innerText = formatIDR(currentPrice * 100);
+
+      drawChart();
+    }
+
+    function buyStock() {
+      const lotToBuy = 1;
+      const sharesToBuy = lotToBuy * 100;
+      const rawCost = sharesToBuy * currentPrice;
+      const fee = rawCost * feeBuy;
+      const totalCost = rawCost + fee;
+
+      if (cash >= totalCost) {
+        cash -= totalCost;
+        const totalOldCost = shares * avgPrice;
+        avgPrice = (totalOldCost + rawCost) / (shares + sharesToBuy);
+        shares += sharesToBuy;
+
+        addLog(`BELI: 1 Lot (100 lbr) KOPI di harga ${formatIDR(currentPrice)}. Biaya beli + fee: ${formatIDR(totalCost)}.`, "text-green");
+        updateUI();
+      }
+    }
+
+    function sellStock() {
+      if (shares < 100) return;
+      const sharesToSell = 100;
+      const rawProceeds = sharesToSell * currentPrice;
+      const fee = rawProceeds * feeSell;
+      const netIncome = rawProceeds - fee;
+
+      cash += netIncome;
+      shares -= sharesToSell;
+      if (shares === 0) avgPrice = 0;
+
+      addLog(`JUAL: 1 Lot (100 lbr) KOPI di harga ${formatIDR(currentPrice)}. Penerimaan bersih (potong fee & pajak): ${formatIDR(netIncome)}.`, "text-red");
+      updateUI();
+    }
+
+    function distributeDividend() {
+      if (shares <= 0) return;
+      const divPerShare = 100;
+      const totalDiv = shares * divPerShare;
+      cash += totalDiv;
+      totalDividendEarned += totalDiv;
+
+      addLog(`DIVIDEN CAIR: Pembagian dividen Rp 100/lbr. Total kas bertambah ${formatIDR(totalDiv)}.`, "text-yellow");
+      updateUI();
+    }
+
+    function simulateMarket() {
+      const changePercent = (Math.random() * 10 - 5) / 100;
+      const oldPrice = currentPrice;
+      currentPrice = Math.round(currentPrice * (1 + changePercent) / 10) * 10;
+      if (currentPrice < 50) currentPrice = 50;
+
+      const badge = document.getElementById("priceChangeBadge");
+      if (currentPrice > oldPrice) {
+        badge.innerText = `Naik +${((currentPrice - oldPrice) / oldPrice * 100).toFixed(1)}%`;
+        badge.style.backgroundColor = "var(--success)";
+      } else if (currentPrice < oldPrice) {
+        badge.innerText = `Turun ${((currentPrice - oldPrice) / oldPrice * 100).toFixed(1)}%`;
+        badge.style.backgroundColor = "var(--danger)";
+      } else {
+        badge.innerText = "Tetap";
+        badge.style.backgroundColor = "var(--border)";
+      }
+
+      priceHistory.push(currentPrice);
+      if (priceHistory.length > 15) priceHistory.shift();
+
+      addLog(`PASAR: Harga saham KOPI berubah menjadi ${formatIDR(currentPrice)}.`);
+      updateUI();
+    }
+
+    // Evaluasi Kuis
+    function gradeQuiz() {
+      let score = 0;
+      const a1 = document.querySelector('input[name="ans1"]:checked');
+      const a2 = document.querySelector('input[name="ans2"]:checked');
+      const a3 = document.querySelector('input[name="ans3"]:checked');
+
+      // Q1
+      const fb1 = document.getElementById("fb1");
+      if (a1 && a1.value === "B") {
+        score++;
+        fb1.innerText = "Benar! 1 Lot = 100 Lembar, jadi 2 Lot = 200 Lembar.";
+        fb1.className = "quiz-feedback text-green";
+      } else {
+        fb1.innerText = "Kurang tepat. 1 Lot selalu berisi 100 lembar saham (Jawaban: B).";
+        fb1.className = "quiz-feedback text-red";
+      }
+
+      // Q2
+      const fb2 = document.getElementById("fb2");
+      if (a2 && a2.value === "C") {
+        score++;
+        fb2.innerText = "Tepat sekali! Pembagian laba bersih perusahaan ke pemegang saham disebut Dividen.";
+        fb2.className = "quiz-feedback text-green";
+      } else {
+        fb2.innerText = "Kurang tepat. Laba perusahaan yang dibagikan secara tunai adalah Dividen (Jawaban: C).";
+        fb2.className = "quiz-feedback text-red";
+      }
+
+      // Q3
+      const fb3 = document.getElementById("fb3");
+      if (a3 && a3.value === "A") {
+        score++;
+        fb3.innerText = "Benar! Keuntungan dari kenaikan harga jual dibanding harga beli adalah Capital Gain.";
+        fb3.className = "quiz-feedback text-green";
+      } else {
+        fb3.innerText = "Kurang tepat. Selisih positif harga beli dan harga jual adalah Capital Gain (Jawaban: A).";
+        fb3.className = "quiz-feedback text-red";
+      }
+
+      const scoreDisplay = document.getElementById("quizScore");
+      scoreDisplay.innerText = `Skor Pemahaman Anda: ${score} / 3 (${score === 3 ? 'Sempurna!' : 'Pelajari kembali penjelasannya di atas'})`;
+      scoreDisplay.className = score === 3 ? "text-green" : "text-yellow";
+    }
+
+    // Inisialisasi awal
+    updateUI();
+  </script>
+</body>
+</html>
